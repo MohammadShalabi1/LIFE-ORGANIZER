@@ -5,12 +5,11 @@ import datetime
 import hashlib
 from google import genai
 
-# ================= FLASK APP ================= #
+
 app = Flask(__name__)
 CORS(app)
 
-# ================= GEMINI CLIENT ================= #
-client = genai.Client(api_key="AIzaSyD4IcFq0ctSfJcocvc_5E5IDN6OEq9aeKg")  # <-- replace with your key
+client = genai.Client(api_key="\\\\")  
 
 def coaching_agent(message):
     prompt = f"""
@@ -44,11 +43,11 @@ def ask_ai():
 # ================= DB CONNECTION ================= #
 def get_db():
     return mysql.connector.connect(
-        host="127.0.0.1",
-        port=3307,
-        user="root",
-        password="HASSAN123321hassan",   # <-- replace with your DB password
-        database="Lifeorgnizer"
+        host="\\\",
+        port=\\\,
+        user="\\\",
+        password="\\\\",   # <-- replace with your DB password
+        database="\\\\"
     )
 
 # ================= AUTH ================= #
@@ -210,3 +209,4 @@ def all_data(user_id):
 # ================= RUN ================= #
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
