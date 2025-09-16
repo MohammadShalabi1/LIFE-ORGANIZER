@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life Organizer Dashboard</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color:#f0ead6; color:#333; }
+ 
+    /* Navbar */
+    .navbar { display:flex; justify-content:space-between; align-items:center; padding:15px 30px; background-color:#d6c7b0; color:#4a3f35; border-radius:0 0 15px 15px; flex-wrap:wrap; }
+    .navbar .logo { font-size:24px; font-weight:bold; }
+    .nav-right { display:flex; align-items:center; gap:15px; flex-wrap:wrap; }
+    .nav-right .profile-img { width:35px; border-radius:50%; }
+    .logout-btn { padding:6px 12px; background-color:#c3a17d; border:none; color:#fff; border-radius:6px; cursor:pointer; transition:0.3s; }
+    .logout-btn:hover { opacity:0.85; }
+    .nav-right input[type="date"] { padding:6px; border-radius:6px; border:1px solid #c3a17d; }
+ 
+    /* Dashboard Layout */
+    .dashboard-container { display:grid; grid-template-columns:220px 1fr; gap:20px; padding:20px 30px; }
+ 
+    /* Sidebar */
+    .sidebar { background-color:#e4d9c7; padding:20px; border-radius:12px; box-shadow:0 4px 8px rgba(0,0,0,0.05); }
+    .sidebar ul { list-style:none; }
+    .sidebar li { padding:12px 10px; margin-bottom:10px; border-radius:8px; cursor:pointer; transition:0.3s; color:#4a3f35; }
+    .sidebar li:hover, .sidebar li.active { background-color:#c3a17d; color:#fff; }
+ 
+    /* Main Content */
+    .main-content { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:20px; }
+ 
+    /* Cards */
+    .card { background-color:#fff8f0; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.05); }
+    .card h2 { margin-bottom:15px; color:#4a3f35; }
+ 
+    /* Buttons */
+    .card button { padding:6px 12px; margin:3px; border:none; border-radius:6px; cursor:pointer; background-color:#c3a17d; color:#fff; transition:0.3s; }
+    .card button:hover { opacity:0.85; }
+ 
+    /* Stylish Task & Expense Items */
+    .list-item {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:#f9f3e9;
+      border-radius:8px;
+      padding:8px 12px;
+      margin-bottom:8px;
+      box-shadow:0 2px 5px rgba(0,0,0,0.05);
+      transition:0.2s;
+    }
+    .list-item:hover { background:#f1e6d6; }
+    .badge {
+      display:inline-block;
+      padding:3px 8px;
+      border-radius:6px;
+      font-size:12px;
+      font-weight:bold;
+      color:#fff;
+      margin-right:10px;
+      min-width:50px;
+      text-align:center;
+    }
+    .delete-btn {
+      background:#e74c3c;
+      border:none;
+      color:#fff;
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:6px;
+      cursor:pointer;
+      transition:0.3s;
+    }
+    .delete-btn:hover { background:#c0392b; }
+ 
+    /* AI Chat */
+    .ai-chat { max-height:200px; overflow-y:auto; background:#e4d9c7; padding:10px; border-radius:8px; margin-bottom:10px; }
+    .ai-chat .message { margin-bottom:6px; }
+    .ai-chat .ai { color:#fff; background-color:#4a90e2; padding:6px 10px; border-radius:6px; display:inline-block; }
+    .ai-chat .user { color:#333; background-color:#f0ead6; padding:6px 10px; border-radius:6px; display:inline-block; }
+ 
+    /* Inputs */
+    input[type=text], input[type=number] { padding:6px 10px; border-radius:6px; border:1px solid #c3a17d; margin-right:5px; margin-bottom:5px; width:calc(100% - 120px); }
+ 
+    /* Canvas responsive */
+    canvas { max-width:100%; }
+ 
+    /* Footer */
+    .footer { text-align:center; padding:15px; background:#d6c7b0; margin-top:20px; border-radius:12px 12px 0 0; }
+ 
+    /* Responsive Adjustments */
+    @media (max-width: 1024px) {
+      .dashboard-container {
+        grid-template-columns: 180px 1fr;
+        padding: 15px;
+      }
+    }
+    @media (max-width: 768px) {
+      .dashboard-container { grid-template-columns: 1fr; }
+      .sidebar { margin-bottom: 20px; }
+      .navbar { flex-direction: column; align-items: flex-start; gap: 10px; padding: 10px 15px; }
+      .nav-right { flex-wrap: wrap; gap: 10px; width: 100%; justify-content: space-between; }
+      .nav-right input[type="date"] { flex: 1; min-width: 120px; }
+    }
+    @media (max-width: 480px) {
+      body { font-size: 14px; }
+      .navbar .logo { font-size: 18px; }
+      .logout-btn { padding: 4px 8px; font-size: 12px; }
+      input[type=text], input[type=number] { width: 100%; }
+      .card { padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+ 
+<!-- Navbar -->
+<header class="navbar">
+  <div class="logo">LifeOrganizer</div>
+  <div class="nav-right">
+    <input type="date" id="calendar" onchange="changeDay()" />
+    <span>Welcome, John Doe</span>
+    <img src="https://via.placeholder.com/35" alt="Profile" class="profile-img">
+    <button class="logout-btn">Logout</button>
+  </div>
+</header>
+ 
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <ul>
+      <li class="active">Dashboard</li>
+      <li>Tasks</li>
+      <li>Finance</li>
+      <li>Notes</li>
+      <li>Settings</li>
+    </ul>
+  </aside>
+ 
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Schedule Card -->
+    <div class="card">
+      <h2>Schedule</h2>
+      <canvas id="scheduleChart"></canvas>
+      <h3>Quick Add Task</h3>
+      <input type="text" id="taskName" placeholder="Task Name">
+      <input type="number" id="taskHours" placeholder="Hours" min="0" max="24">
+      <button onclick="addTask()">Add</button>
+      <div id="taskList"></div>
+    </div>
+ 
+    <!-- Expenses Card -->
+    <div class="card">
+      <h2>Expenses Overview</h2>
+      <canvas id="expensesChart"></canvas>
+      <h3>Quick Add Expense</h3>
+      <input type="text" id="expenseName" placeholder="Expense Name">
+      <input type="number" id="expenseAmount" placeholder="Amount">
+      <button onclick="addExpense()">Add</button>
+      <div id="expenseList"></div>
+    </div>
+ 
+    <!-- AI Suggestions Chat -->
+    <div class="card">
+      <h2>AI Life Coach</h2>
+      <div class="ai-chat" id="aiChat"></div>
+      <input type="text" id="aiInput" placeholder="Ask your coach...">
+      <button onclick="sendAIMessage()">Send</button>
+    </div>
+ 
+    <!-- Monthly Dashboard -->
+    <div class="card">
+      <h2>Monthly Overview</h2>
+      <canvas id="monthlyChart"></canvas>
+      <ul id="monthlySummary"></ul>
+    </div>
+  </main>
+</div>
+ 
+<footer class="footer">&copy; 2025 LifeOrganizer. All rights reserved.</footer>
+ 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let dailyData = {};
+let currentUserId = 1; // Replace with the actual logged-in user ID
+let tasks = [];
+let expenses = [];
+
+// Color palette
+const colors = ["#ff6384","#36a2eb","#f39c12","#2ecc71","#9b59b6","#1abc9c","#e67e22","#16a085","#34495e","#8e44ad"];
+function getColor(index){ return colors[index % colors.length]; }
+
+// ===== Fetch all tasks & expenses =====
+async function loadAllData() {
+  const res = await fetch(`http://localhost:5000/all_data/${currentUserId}`);
+  dailyData = await res.json();
+  document.getElementById("calendar").value = new Date().toISOString().split("T")[0];
+  changeDay();
+}
+
+// ===== Utility functions =====
+function getCurrentDay() {
+  return document.getElementById("calendar").value || new Date().toISOString().split("T")[0];
+}
+function getCurrentMonth() { return getCurrentDay().slice(0,7); }
+
+// ===== Change selected day =====
+function changeDay() {
+  const day = getCurrentDay();
+  if (!dailyData[day]) dailyData[day] = {tasks: [], expenses: []};
+  tasks = dailyData[day].tasks;
+  expenses = dailyData[day].expenses;
+  renderScheduleChart(tasks);
+  renderTaskList();
+  renderExpenseList();
+  renderMonthlyOverview();
+}
+
+// ===== Schedule Chart =====
+const scheduleCtx = document.getElementById('scheduleChart').getContext('2d');
+const scheduleChart = new Chart(scheduleCtx, {
+  type:'bar',
+  data:{ labels:[], datasets:[{ data:[], backgroundColor:[] }] },
+});
+
+function renderScheduleChart(arr) {
+  scheduleChart.data.labels = arr.map(t=>t.name);
+  scheduleChart.data.datasets[0].data = arr.map(t=>t.hours);
+  scheduleChart.data.datasets[0].backgroundColor = arr.map((_,i)=>getColor(i));
+  scheduleChart.update();
+}
+
+// ===== Task List =====
+function renderTaskList() {
+  document.getElementById('taskList').innerHTML = tasks.map((t,i)=>
+    `<div class="list-item">
+      <span><span class="badge" style="background:${getColor(i)}">${t.hours}h</span> ${t.name}</span>
+      <button class="delete-btn" onclick="deleteTask(${i})">Delete</button>
+    </div>`).join("");
+}
+
+async function addTask() {
+  const name = document.getElementById('taskName').value;
+  const hours = parseInt(document.getElementById('taskHours').value);
+  if (!name || hours <= 0) return;
+
+  const res = await fetch("http://localhost:5000/tasks", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({user_id: currentUserId, date:getCurrentDay(), name, hours})
+  });
+  const data = await res.json();
+  if(data.status==="ok"){
+    if(!dailyData[getCurrentDay()]) dailyData[getCurrentDay()] = {tasks:[], expenses:[]};
+    dailyData[getCurrentDay()].tasks.push({name,hours});
+    document.getElementById('taskName').value='';
+    document.getElementById('taskHours').value='';
+    changeDay();
+  }
+}
+
+async function deleteTask(index){
+  const task = tasks[index];
+  if(task.id){
+    await fetch(`http://localhost:5000/tasks/${task.id}`, {method:"DELETE"});
+    tasks.splice(index,1);
+    changeDay();
+  }
+}
+
+// ===== Expenses Chart =====
+const expensesCtx = document.getElementById('expensesChart').getContext('2d');
+const expensesChart = new Chart(expensesCtx, {
+  type:'pie',
+  data:{ labels:[], datasets:[{ data:[], backgroundColor:[] }] },
+});
+
+function renderExpenseList() {
+  document.getElementById('expenseList').innerHTML = expenses.map((e,i)=>
+    `<div class="list-item">
+      <span><span class="badge" style="background:${getColor(i)}">$${e.amount}</span> ${e.name}</span>
+      <button class="delete-btn" onclick="deleteExpense(${i})">Delete</button>
+    </div>`).join("");
+  expensesChart.data.labels = expenses.map(e=>e.name);
+  expensesChart.data.datasets[0].data = expenses.map(e=>e.amount);
+  expensesChart.data.datasets[0].backgroundColor = expenses.map((_,i)=>getColor(i));
+  expensesChart.update();
+}
+
+async function addExpense() {
+  const name = document.getElementById('expenseName').value;
+  const amount = parseInt(document.getElementById('expenseAmount').value);
+  if(!name || amount <= 0) return;
+
+  const res = await fetch("http://localhost:5000/expenses", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({user_id:currentUserId,date:getCurrentDay(),name,amount})
+  });
+  const data = await res.json();
+  if(data.status==="ok"){
+    if(!dailyData[getCurrentDay()]) dailyData[getCurrentDay()] = {tasks:[],expenses:[]};
+    dailyData[getCurrentDay()].expenses.push({name,amount});
+    document.getElementById('expenseName').value='';
+    document.getElementById('expenseAmount').value='';
+    changeDay();
+  }
+}
+
+async function deleteExpense(index){
+  const expense = expenses[index];
+  if(expense.id){
+    await fetch(`http://localhost:5000/expenses/${expense.id}`, {method:"DELETE"});
+    expenses.splice(index,1);
+    changeDay();
+  }
+}
+
+// ===== Monthly Overview =====
+const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+const monthlyChart = new Chart(monthlyCtx, {
+  type:'pie',
+  data:{ labels:[], datasets:[{ data:[], backgroundColor:[] }] },
+});
+
+function calculateMonthlyExpenses(month){
+  let totals={};
+  for(const [day,data] of Object.entries(dailyData)){
+    if(day.startsWith(month)){
+      data.expenses.forEach(e => { totals[e.name] = (totals[e.name]||0)+e.amount; });
+    }
+  }
+  return totals;
+}
+
+function renderMonthlyOverview(){
+  const month = getCurrentMonth();
+  const totals = calculateMonthlyExpenses(month);
+  const labels = Object.keys(totals);
+  const values = Object.values(totals);
+
+  monthlyChart.data.labels = labels;
+  monthlyChart.data.datasets[0].data = values;
+  monthlyChart.data.datasets[0].backgroundColor = labels.map((_,i)=>getColor(i));
+  monthlyChart.update();
+
+  document.getElementById('monthlySummary').innerHTML = labels.map((l,i)=>
+    `<li><span class="badge" style="background:${getColor(i)}">$${values[i]}</span> ${l}</li>`).join("");
+}
+
+// ===== AI Chat (optional) =====
+async function sendAIMessage(){
+  const input = document.getElementById('aiInput').value;
+  if(!input) return;
+  const aiChat = document.getElementById('aiChat');
+  aiChat.innerHTML += `<div class="message user">${input}</div>`;
+  document.getElementById('aiInput').value = "";
+
+  const month = getCurrentMonth();
+  const totals = calculateMonthlyExpenses(month);
+  let summaryText = "Monthly Summary:\\n";
+  for(const [cat,val] of Object.entries(totals)) summaryText += `- ${cat}: $${val}\\n`;
+
+  const response = await fetch("http://localhost:5000/ask",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({message: input + "\\n\\n" + summaryText})
+  });
+  const data = await response.json();
+  aiChat.innerHTML += `<div class="message ai">${data.response}</div>`;
+  aiChat.scrollTop = aiChat.scrollHeight;
+}
+
+// ===== Initialize =====
+window.onload = loadAllData;
+</script>
+
+</body>
+</html>
+ 

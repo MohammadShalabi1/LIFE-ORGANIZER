@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #d8c9a3; /* light kaki background */
+}
+
+/* Container */
+.container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+/* Card */
+.login-box, .register-box {
+    background-color: #c2a77b; /* light brown container */
+    border-radius: 16px;
+    padding: 40px 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+    color: #fff;
+}
+
+/* Heading */
+.login-box h1, .register-box h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.login-box p, .register-box p {
+    font-size: 14px;
+    margin-bottom: 30px;
+    color: #f3ebdf;
+}
+
+/* Inputs */
+.input-box {
+    margin-bottom: 15px;
+}
+
+.input-box input {
+    width: 100%;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background-color: #f3ebdf;
+    color: #333;
+}
+
+.input-box input:focus {
+    border: 2px solid #8b5e3c;
+    box-shadow: 0 0 0 2px rgba(139,94,60,0.2);
+}
+
+/* Button */
+button {
+    width: 100%;
+    padding: 14px;
+    background-color: #8b5e3c;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #7a4e2f;
+    transform: scale(1.02);
+}
+
+/* Link text */
+.signup-text {
+    margin-top: 18px;
+    font-size: 13px;
+    color: #f3ebdf;
+}
+
+.signup-text a {
+    color: #fff;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 450px) {
+    .login-box, .register-box {
+        padding: 30px 20px;
+    }
+}
+</style>
+  <title>Register - LifeOrganizer</title>
+
+</head>
+<body>
+  <div class="container">
+      <div class="register-box">
+          <h1>Create Account</h1>
+          <p>Join us to start using our service</p>
+          <form onsubmit="register(event)">
+              <div class="input-box">
+                  <input type="text" id="name" placeholder="Full Name" required>
+              </div>
+              <div class="input-box">
+                  <input type="email" id="email" placeholder="Email Address" required>
+              </div>
+              <div class="input-box">
+                  <input type="password" id="password" placeholder="Password" required>
+              </div>
+              <button type="submit">Register</button>
+              <p class="signup-text">Already have an account? <a href="login.html">Login</a></p>
+          </form>
+          <p id="error" style="color:red; margin-top:10px;"></p>
+      </div>
+  </div>
+
+<script>
+const API = "http://localhost:5000";
+
+async function register(e){
+    e.preventDefault();
+    let name = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+
+    let res = await fetch(`${API}/register`, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({name,email,password})
+    });
+
+    let data = await res.json();
+    if(res.ok){
+        alert("Registered successfully! Please login.");
+        window.location="login.html";
+    }else{
+        document.getElementById("error").textContent = data.message;
+    }
+}
+</script>
+</body>
+</html>
