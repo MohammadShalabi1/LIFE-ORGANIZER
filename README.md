@@ -32,3 +32,13 @@ It combines **productivity tools** and an **AI-assisted life coach** for a holis
 - Modular backend design for easy feature expansion.  
 - Combines **task, finance, and AI guidance** in a single platform.  
 ---
+
+---
+
+## 🔹 My Other Projects
+Here are my other top repositories:
+
+- [CodeAgent](https://github.com/MohammadShalabi1/CodeAgent)
+- [WEBANALYZER](https://github.com/MohammadShalabi1/WEBANALYZER)
+- [Reservation_Agents](https://github.com/MohammadShalabi1/Reservation_Agents)
+- [RetailData-Pro](https://github.com/MohammadShalabi1/RetailData-Pro)
